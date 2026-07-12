@@ -14,9 +14,14 @@ The platform is maintained as a **single Git repository (monorepo)** containing 
 
 ---
 
-## 1. Local Development vs. Production
-To maintain a clear separation between environments:
-- **Local Development**: Use `.env.local` for the frontend and `.env` for the backend. Set `STORAGE_PROVIDER=local` in the backend so images are saved directly to your local machine (the `uploads/` directory).
+## 1. Environment Templates and Setup
+To maintain a clear separation between environments and ensure security:
+- **Environment Templates**: 
+  - `backend/.env.example` serves as the backend environment variable template.
+  - `frontend/.env.local.example` serves as the frontend environment variable template.
+  - Developers should copy these templates to `.env` and `.env.local` respectively and populate them with environment-specific values.
+  - The actual `.env` and `.env.local` files must remain excluded from version control through `.gitignore`.
+- **Local Development**: Set `STORAGE_PROVIDER=local` in the backend so images are saved directly to your local machine (the `uploads/` directory).
 - **Production**: Configure environment variables directly in your deployment platform's dashboard. Set `STORAGE_PROVIDER=imagekit` so images are uploaded to the cloud CDN.
 
 ## 2. Managed PostgreSQL Setup
