@@ -3,18 +3,19 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
+        protocol: "https",
+        hostname: "ik.imagekit.io",
+        pathname: "/**",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         port: "8000",
         pathname: "/uploads/**",
       },
-      {
-        protocol: "https",
-        hostname: "**",
-        pathname: "/uploads/**",
-      },
     ],
   },
+
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
