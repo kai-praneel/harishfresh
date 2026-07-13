@@ -8,9 +8,7 @@ from app.core.config import settings
 imagekit = None
 if settings.STORAGE_PROVIDER == "imagekit":
     imagekit = ImageKit(
-        public_key=settings.IMAGEKIT_PUBLIC_KEY,
-        private_key=settings.IMAGEKIT_PRIVATE_KEY,
-        url_endpoint=settings.IMAGEKIT_URL_ENDPOINT
+        private_key=settings.IMAGEKIT_PRIVATE_KEY
     )
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
@@ -32,25 +30,22 @@ def save_image(file: UploadFile, folder: str = "products") -> dict:
     if settings.STORAGE_PROVIDER == "imagekit":
         # ImageKit upload
         file_content = file.file.read()
-        upload_resp = imagekit.upload_file(
-            file=file_content,
-            file_name=filename,
-            options={
-                "folder": f"/harishfresh/{folder}/"
+        try:
+            upload_resp = imagekit.files.upload(
+                file=file_content,
+                file_name=filename,
+                folder=f"/harishfresh/{folder}/"
+            )
+            # Reset file cursor just in case it's used again
+            file.file.seek(0)
+            
+            return {
+                "url": upload_resp.url,
+                "file_id": upload_resp.file_id
             }
-        )
-        # ImageKit response object contains url and fileId
-        # the python SDK returns an UploadResponse with error or response
-        if upload_resp.error:
-            raise Exception(f"ImageKit upload failed: {upload_resp.error.message}")
-        
-        # Reset file cursor just in case it's used again
-        file.file.seek(0)
-        
-        return {
-            "url": upload_resp.response.url,
-            "file_id": upload_resp.response.file_id
-        }
+        except Exception as e:
+            file.file.seek(0)
+            raise Exception(f"ImageKit upload failed: {str(e)}")
 
     else:
         # Local Storage upload
@@ -77,13 +72,10 @@ def delete_image(url: str, file_id: str = None) -> bool:
     if settings.STORAGE_PROVIDER == "imagekit":
         if file_id:
             try:
-                delete_resp = imagekit.delete_file(file_id=file_id)
-                if delete_resp.error:
-                    print(f"Failed to delete from ImageKit: {delete_resp.error.message}")
-                    return False
+                imagekit.files.delete(file_id=file_id)
                 return True
             except Exception as e:
-                print(f"Exception during ImageKit deletion: {str(e)}")
+                print(f"Failed to delete from ImageKit: {str(e)}")
                 return False
         return False
     else:
