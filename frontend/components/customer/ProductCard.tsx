@@ -51,8 +51,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
     
     const currentQty = cartItem ? cartItem.quantity : 0;
-    if (product.available_stock !== null && product.available_stock !== undefined && currentQty + 1 > product.available_stock) {
-      toast.error("The selected quantity is currently unavailable. Please choose a lower quantity.");
+    if (product.available_stock !== null && product.available_stock !== undefined && currentQty >= product.available_stock) {
       return;
     }
     
@@ -168,9 +167,17 @@ export default function ProductCard({ product }: ProductCardProps) {
                     <button
                       onClick={(e) => {
                         e.preventDefault();
+                        if (product.available_stock !== null && product.available_stock !== undefined && cartItem.quantity >= product.available_stock) {
+                          return;
+                        }
                         increaseQty(product.id);
                       }}
-                      className="w-1/3 h-full flex items-center justify-center text-white hover:bg-green-800 transition-colors"
+                      disabled={product.available_stock !== null && product.available_stock !== undefined && cartItem.quantity >= product.available_stock}
+                      className={`w-1/3 h-full flex items-center justify-center transition-colors ${
+                        product.available_stock !== null && product.available_stock !== undefined && cartItem.quantity >= product.available_stock
+                          ? "text-green-900/30 cursor-not-allowed bg-green-700"
+                          : "text-white hover:bg-green-800"
+                      }`}
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>

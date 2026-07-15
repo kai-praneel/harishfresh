@@ -48,6 +48,7 @@ class CategoryOut(BaseModel):
     name: str
     slug: str
     description: Optional[str]
+    image_url: Optional[str] = None
     created_at: datetime
     subcategories: List[SubcategoryOut] = []
 
@@ -59,6 +60,7 @@ class CategorySimple(BaseModel):
     id: int
     name: str
     slug: str
+    image_url: Optional[str] = None
 
     class Config:
         from_attributes = True

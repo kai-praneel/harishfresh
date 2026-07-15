@@ -3,6 +3,7 @@ export interface Category {
   name: string;
   slug: string;
   description?: string;
+  image_url?: string | null;
   subcategories: Subcategory[];
   created_at?: string;
   updated_at?: string;

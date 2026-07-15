@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Truck, Package, MessageCircle, Leaf, Clock, ShieldCheck, Star, ArrowRight } from "lucide-react";
 import { Category, Product, Settings } from "@/types";
 import ProductCard from "./ProductCard";
 import { extractRadius } from "@/utils";
+import { getImageUrl } from "@/services/api";
 
 // ── Free Delivery Section ──────────────────────────────────────────────────────
 
@@ -56,7 +58,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
 
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
           {categories.map((cat) => {
-            const icon = CATEGORY_ICONS[cat.slug] || "🛒";
+            const icon = CATEGORY_ICONS[cat.slug] || "🧺";
             const color = CATEGORY_COLORS[cat.slug] || "bg-green-50";
             return (
               <Link
@@ -64,8 +66,18 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
                 href={`/category/${cat.slug}`}
                 className="group flex flex-col items-center cursor-pointer transition-all duration-200"
               >
-                <div className={`w-14 h-14 sm:w-16 sm:h-16 mb-2 rounded-2xl ${color} flex items-center justify-center border border-gray-100 group-hover:border-green-200 group-hover:shadow-sm transition-all duration-300`}>
-                  <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300">{icon}</span>
+                <div className={`relative w-14 h-14 sm:w-16 sm:h-16 mb-2 rounded-2xl ${color} flex items-center justify-center border border-gray-100 group-hover:border-green-200 group-hover:shadow-sm transition-all duration-300 overflow-hidden`}>
+                  {cat.image_url ? (
+                    <Image
+                      src={getImageUrl(cat.image_url)}
+                      alt={cat.name}
+                      fill
+                      sizes="(max-width: 640px) 56px, 64px"
+                      className="object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  ) : (
+                    <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300 z-10">{icon}</span>
+                  )}
                 </div>
                 <h3 className="font-bold text-gray-800 text-xs sm:text-sm text-center leading-tight group-hover:text-green-700 transition-colors duration-200 line-clamp-2 px-1">
                   {cat.name}

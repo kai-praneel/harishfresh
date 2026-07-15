@@ -12,6 +12,8 @@ class Category(Base):
     slug = Column(String, unique=True, nullable=False, index=True)
     description = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    image_url = Column(String, nullable=True)
+    image_file_id = Column(String, nullable=True)
 
     subcategories = relationship("Subcategory", back_populates="category", cascade="all, delete-orphan")
     products = relationship("Product", back_populates="category")

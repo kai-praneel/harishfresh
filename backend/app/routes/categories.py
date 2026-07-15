@@ -1,11 +1,12 @@
 import re
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.core.database import get_db
 from app.core.security import get_current_admin
 from app.models.category import Category
 from app.schemas import CategoryOut, CategoryCreate, CategoryUpdate
+from app.services.storage import save_image
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
@@ -32,15 +33,27 @@ def get_category(slug: str, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=CategoryOut)
 def create_category(
-    body: CategoryCreate,
+    name: str = Form(...),
+    description: Optional[str] = Form(None),
+    image: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
     _: str = Depends(get_current_admin),
 ):
-    slug = make_slug(body.name)
+    slug = make_slug(name)
     existing = db.query(Category).filter(Category.slug == slug).first()
     if existing:
         slug = f"{slug}-{db.query(Category).count()}"
-    cat = Category(name=body.name, slug=slug, description=body.description)
+    
+    cat = Category(name=name, slug=slug, description=description)
+    
+    if image and image.filename:
+        try:
+            res = save_image(image, folder="categories", resize_to=(512, 512))
+            cat.image_url = res["url"]
+            cat.image_file_id = res.get("file_id")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
     db.add(cat)
     db.commit()
     db.refresh(cat)
@@ -50,18 +63,29 @@ def create_category(
 @router.put("/{id}", response_model=CategoryOut)
 def update_category(
     id: int,
-    body: CategoryUpdate,
+    name: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    image: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
     _: str = Depends(get_current_admin),
 ):
     cat = db.query(Category).filter(Category.id == id).first()
     if not cat:
         raise HTTPException(status_code=404, detail="Category not found")
-    if body.name:
-        cat.name = body.name
-        cat.slug = make_slug(body.name)
-    if body.description is not None:
-        cat.description = body.description
+    if name:
+        cat.name = name
+        cat.slug = make_slug(name)
+    if description is not None:
+        cat.description = description
+        
+    if image and image.filename:
+        try:
+            res = save_image(image, folder="categories", resize_to=(512, 512))
+            cat.image_url = res["url"]
+            cat.image_file_id = res.get("file_id")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
     db.commit()
     db.refresh(cat)
     return cat

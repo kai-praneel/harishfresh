@@ -60,7 +60,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
     const currentQty = cartItem ? cartItem.quantity : 0;
     if (product.available_stock !== null && product.available_stock !== undefined && currentQty + qty > product.available_stock) {
-      toast.error("The selected quantity is currently unavailable. Please choose a lower quantity.");
       return;
     }
     addItemWithQty(product, qty);
@@ -70,8 +69,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const handleIncrease = () => {
     if (!product) return;
     const currentQty = cartItem ? cartItem.quantity : 0;
-    if (product.available_stock !== null && product.available_stock !== undefined && currentQty + qty + 1 > product.available_stock) {
-      toast.error("The selected quantity is currently unavailable. Please choose a lower quantity.");
+    if (product.available_stock !== null && product.available_stock !== undefined && currentQty + qty >= product.available_stock) {
       return;
     }
     setQty(qty + 1);
@@ -234,7 +232,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     <span className="flex-1 text-center font-bold text-green-900 text-lg">{qty}</span>
                     <button
                       onClick={handleIncrease}
-                      className="w-12 h-full flex items-center justify-center text-green-700 hover:bg-green-100 transition-colors duration-200"
+                      disabled={product.available_stock !== null && product.available_stock !== undefined && (cartItem ? cartItem.quantity : 0) + qty >= product.available_stock}
+                      className={`w-12 h-full flex items-center justify-center transition-colors duration-200 ${
+                        product.available_stock !== null && product.available_stock !== undefined && (cartItem ? cartItem.quantity : 0) + qty >= product.available_stock
+                          ? "text-green-700/30 cursor-not-allowed bg-green-50"
+                          : "text-green-700 hover:bg-green-100"
+                      }`}
                     >
                       <Plus className="w-5 h-5" />
                     </button>

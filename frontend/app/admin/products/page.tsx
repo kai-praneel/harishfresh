@@ -358,21 +358,19 @@ export default function ProductsPage() {
                 </div>
               </div>
               
-              {form.is_weight_based && (
-                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                  <div className="col-span-2">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Inventory Management ({form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type})</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Available Stock ({form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type})</label>
-                    <input type="number" value={form.available_stock} onChange={(e) => setForm((f) => ({ ...f, available_stock: e.target.value }))} placeholder="e.g. 5" min="0" step="0.001" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Low Stock Alert ({form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type})</label>
-                    <input type="number" value={form.low_stock_threshold} onChange={(e) => setForm((f) => ({ ...f, low_stock_threshold: e.target.value }))} placeholder="e.g. 1" min="0" step="0.001" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
-                  </div>
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 mt-2">
+                <div className="col-span-2">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Inventory Management ({form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type})</p>
                 </div>
-              )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Available Stock ({form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type})</label>
+                  <input type="number" value={form.available_stock} onChange={(e) => setForm((f) => ({ ...f, available_stock: e.target.value }))} placeholder="e.g. 5" min="0" step="0.001" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Low Stock Alert ({form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type})</label>
+                  <input type="number" value={form.low_stock_threshold} onChange={(e) => setForm((f) => ({ ...f, low_stock_threshold: e.target.value }))} placeholder="e.g. 1" min="0" step="0.001" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Product Image</label>
                 <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleFileChange} className="hidden" />

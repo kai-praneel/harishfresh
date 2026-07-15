@@ -1,5 +1,7 @@
 import os
 import uuid
+import io
+from PIL import Image
 from fastapi import UploadFile
 from imagekitio import ImageKit
 from app.core.config import settings
@@ -19,17 +21,36 @@ def _get_extension(filename: str) -> str:
         ext = ".jpg"  # default if missing or invalid, although caller should validate
     return ext
 
-def save_image(file: UploadFile, folder: str = "products") -> dict:
+def save_image(file: UploadFile, folder: str = "products", resize_to: tuple = None) -> dict:
     """
     Saves an image to the configured storage provider.
     Returns a dictionary with 'url' and optionally 'file_id' (for ImageKit).
     """
     ext = _get_extension(file.filename)
+    if resize_to:
+        ext = ".jpg"
+        
     filename = f"{uuid.uuid4()}{ext}"
+
+    file_content = file.file.read()
+    
+    if resize_to:
+        try:
+            img = Image.open(io.BytesIO(file_content))
+            if img.mode != "RGB":
+                img = img.convert("RGB")
+            img.thumbnail(resize_to, Image.Resampling.LANCZOS)
+            new_img = Image.new("RGB", resize_to, (255, 255, 255))
+            paste_pos = ((resize_to[0] - img.width) // 2, (resize_to[1] - img.height) // 2)
+            new_img.paste(img, paste_pos)
+            out_io = io.BytesIO()
+            new_img.save(out_io, format="JPEG", quality=85, optimize=True)
+            file_content = out_io.getvalue()
+        except Exception:
+            pass
 
     if settings.STORAGE_PROVIDER == "imagekit":
         # ImageKit upload
-        file_content = file.file.read()
         try:
             upload_resp = imagekit.files.upload(
                 file=file_content,
@@ -52,7 +73,7 @@ def save_image(file: UploadFile, folder: str = "products") -> dict:
         path = os.path.join(settings.UPLOAD_DIR, folder, filename)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "wb") as f:
-            f.write(file.file.read())
+            f.write(file_content)
         
         # Reset file cursor
         file.file.seek(0)

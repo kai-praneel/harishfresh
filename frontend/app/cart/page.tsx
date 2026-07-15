@@ -20,8 +20,7 @@ export default function CartPage() {
   const total = totalAmount();
 
   const handleIncreaseQty = (product: any, currentQty: number) => {
-    if (product.available_stock !== null && product.available_stock !== undefined && currentQty + 1 > product.available_stock) {
-      toast.error("The selected quantity is currently unavailable. Please choose a lower quantity.");
+    if (product.available_stock !== null && product.available_stock !== undefined && currentQty >= product.available_stock) {
       return;
     }
     increaseQty(product.id);
@@ -143,7 +142,12 @@ export default function CartPage() {
                         <span className="w-8 text-center text-sm font-bold text-gray-900">{quantity}</span>
                         <button
                           onClick={() => handleIncreaseQty(product, quantity)}
-                          className="w-9 h-full flex items-center justify-center text-gray-500 hover:text-green-600 hover:bg-gray-50 transition-colors"
+                          disabled={product.available_stock !== null && product.available_stock !== undefined && quantity >= product.available_stock}
+                          className={`w-9 h-full flex items-center justify-center transition-colors ${
+                            product.available_stock !== null && product.available_stock !== undefined && quantity >= product.available_stock
+                              ? "text-gray-300 cursor-not-allowed bg-gray-50"
+                              : "text-gray-500 hover:text-green-600 hover:bg-gray-50"
+                          }`}
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>

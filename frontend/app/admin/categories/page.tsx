@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, X, Tag, Search, Loader2 } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Plus, Pencil, Trash2, X, Tag, Search, Loader2, Upload } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { categoriesApi } from "@/services/api";
+import { categoriesApi, getImageUrl } from "@/services/api";
 import { Category } from "@/types";
 import { formatDate } from "@/utils";
 import toast from "react-hot-toast";
@@ -27,6 +27,10 @@ export default function CategoriesPage() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // Delete state
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
@@ -57,6 +61,8 @@ export default function CategoriesPage() {
     setEditingId(null);
     setForm(EMPTY_FORM);
     setErrors({});
+    setImageFile(null);
+    setImagePreview("");
     setShowForm(true);
   };
 
@@ -64,6 +70,8 @@ export default function CategoriesPage() {
     setEditingId(cat.id);
     setForm({ name: cat.name, description: cat.description || "" });
     setErrors({});
+    setImageFile(null);
+    setImagePreview(cat.image_url ? getImageUrl(cat.image_url) : "");
     setShowForm(true);
   };
 
@@ -72,6 +80,16 @@ export default function CategoriesPage() {
     setEditingId(null);
     setForm(EMPTY_FORM);
     setErrors({});
+    setImageFile(null);
+    setImagePreview("");
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   const validate = (): boolean => {
@@ -89,16 +107,20 @@ export default function CategoriesPage() {
 
     setSaving(true);
     try {
-      const payload = {
-        name: form.name.trim(),
-        description: form.description.trim() || undefined,
-      };
+      const formData = new FormData();
+      formData.append("name", form.name.trim());
+      if (form.description.trim()) {
+        formData.append("description", form.description.trim());
+      }
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
 
       if (editingId) {
-        await categoriesApi.update(editingId, payload);
+        await categoriesApi.update(editingId, formData);
         toast.success("Category updated");
       } else {
-        await categoriesApi.create(payload);
+        await categoriesApi.create(formData);
         toast.success("Category created");
       }
       await revalidateCategories();
@@ -334,6 +356,24 @@ export default function CategoriesPage() {
                   rows={3}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Category Image (Optional)</label>
+                <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleFileChange} className="hidden" />
+                {imagePreview ? (
+                  <div className="relative w-full h-40 bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => { setImageFile(null); setImagePreview(""); if (fileRef.current) fileRef.current.value = ""; }} className="absolute top-2 right-2 bg-white/90 hover:bg-white p-1.5 rounded-lg shadow-sm">
+                      <X className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => fileRef.current?.click()} className="w-full h-32 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-green-600 hover:border-green-300 transition-colors">
+                    <Upload className="w-6 h-6" />
+                    <span className="text-xs">Click to upload (JPG, PNG, WebP)</span>
+                  </button>
+                )}
               </div>
 
               <div className="flex gap-3 pt-2">

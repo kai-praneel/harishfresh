@@ -52,10 +52,14 @@ export const authApi = {
 export const categoriesApi = {
   list: () => api.get("/categories/"),
   get: (slug: string) => api.get(`/categories/${slug}`),
-  create: (data: { name: string; description?: string }) =>
-    api.post("/categories/", data),
-  update: (id: number, data: { name?: string; description?: string }) =>
-    api.put(`/categories/${id}`, data),
+  create: (formData: FormData) =>
+    api.post("/categories/", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  update: (id: number, formData: FormData) =>
+    api.put(`/categories/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
   delete: (id: number) => api.delete(`/categories/${id}`),
 };
 
