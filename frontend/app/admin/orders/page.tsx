@@ -185,7 +185,7 @@ function OrdersContent() {
                         <div className="space-y-1.5">
                           {order.items.map((item) => (
                             <div key={item.id} className="flex items-center justify-between text-sm">
-                              <span className="text-gray-700">{item.product_name} <span className="text-gray-400">× {item.is_weight_based ? formatWeight(item.quantity) : `${item.quantity} ${item.unit || "Kg"}`}</span></span>
+                              <span className="text-gray-700">{item.product_name} <span className="text-gray-400">× {item.is_weight_based ? formatWeight(item.quantity, item.unit) : `${item.quantity} ${item.unit || "Kg"}`}</span></span>
                               <span className="text-gray-600 font-medium">{formatCurrency(item.subtotal)}</span>
                             </div>
                           ))}

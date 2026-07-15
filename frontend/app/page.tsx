@@ -8,6 +8,8 @@ import WhyChooseSection from "@/components/customer/WhyChooseSection";
 import WhatsAppCTA from "@/components/customer/WhatsAppCTA";
 import { settingsApi, categoriesApi, productsApi } from "@/services/api";
 
+export const dynamic = 'force-dynamic';
+
 async function getPageData() {
   try {
     const [settingsRes, categoriesRes, featuredRes] = await Promise.all([

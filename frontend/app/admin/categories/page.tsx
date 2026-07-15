@@ -7,6 +7,7 @@ import { categoriesApi } from "@/services/api";
 import { Category } from "@/types";
 import { formatDate } from "@/utils";
 import toast from "react-hot-toast";
+import { revalidateCategories } from "@/app/actions/revalidate";
 
 interface FormData {
   name: string;
@@ -100,6 +101,7 @@ export default function CategoriesPage() {
         await categoriesApi.create(payload);
         toast.success("Category created");
       }
+      await revalidateCategories();
       closeForm();
       await fetchCategories();
     } catch (err: any) {
@@ -116,6 +118,7 @@ export default function CategoriesPage() {
       await categoriesApi.delete(deleteTarget.id);
       toast.success("Category deleted");
       setDeleteTarget(null);
+      await revalidateCategories();
       await fetchCategories();
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || "Failed to delete category");

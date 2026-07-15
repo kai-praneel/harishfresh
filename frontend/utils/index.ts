@@ -4,7 +4,7 @@ import { Order } from "../types";
 
 export function generateRiderMessage(order: Order): string {
   const itemsList = (order.items || []).map(item => {
-    const qtyStr = item.is_weight_based ? formatWeight(item.quantity) : `${item.quantity} x ${item.unit || "Kg"}`;
+    const qtyStr = item.is_weight_based ? formatWeight(item.quantity, item.unit) : `${item.quantity} x ${item.unit || "Kg"}`;
     return `- ${qtyStr} x ${item.product_name}`;
   }).join('\n');
   
@@ -52,14 +52,26 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-export function formatWeight(grams: number): string {
-  if (grams >= 1000) {
-    const kg = Math.floor(grams / 1000);
-    const rem = grams % 1000;
-    if (rem === 0) return `${kg} Kg`;
-    return `${kg} Kg ${rem} g`;
+export function formatWeight(amount: number, unitStr?: string): string {
+    const mainUnit = unitStr || 'Kg';
+  let subUnit = 'g';
+  if (mainUnit.toLowerCase() === 'litre' || mainUnit.toLowerCase() === 'l') {
+    subUnit = 'ml';
+  } else if (mainUnit.toLowerCase() === 'kg') {
+    subUnit = 'g';
+  } else if (mainUnit.toLowerCase() === 'gram' || mainUnit.toLowerCase() === 'g') {
+    subUnit = 'mg';
+  } else {
+    return `${(amount / 1000).toFixed(amount % 1000 === 0 ? 0 : 2)} ${mainUnit}`;
   }
-  return `${grams} g`;
+
+  if (amount >= 1000) {
+    const kg = Math.floor(amount / 1000);
+    const rem = amount % 1000;
+    if (rem === 0) return `${kg} ${mainUnit}`;
+    return `${kg} ${mainUnit} ${rem} ${subUnit}`;
+  }
+  return `${amount} ${subUnit}`;
 }
 
 export function formatDate(dateString: string): string {

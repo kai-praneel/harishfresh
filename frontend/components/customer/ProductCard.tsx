@@ -124,7 +124,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="flex items-center justify-between mt-auto">
             <div className="flex flex-col justify-end h-[36px]">
               <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="font-display text-lg font-black text-gray-900 tracking-tight leading-none">
+                <span className="font-price text-lg text-gray-900 tracking-tight leading-none">
                   {formatCurrency(product.price)}
                 </span>
                 {hasDiscount && (
@@ -146,7 +146,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                     }}
                     className="flex items-center justify-center bg-green-700 text-white rounded-xl overflow-hidden h-[36px] w-[90px] shadow-sm text-xs font-bold hover:bg-green-800 transition-colors"
                   >
-                    {formatWeight(cartItem.quantity)}
+                    {formatWeight(cartItem.quantity, product.unit)}
                   </button>
                 ) : (
                   <div

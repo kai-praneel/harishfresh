@@ -198,12 +198,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
             {/* Price */}
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="font-display text-5xl font-black text-gray-900 tracking-tight">
+              <span className="font-price text-[2.5rem] sm:text-5xl text-gray-900 tracking-tight">
                 {formatCurrency(product.price)}
               </span>
               {hasDiscount && (
                 <>
-                  <span className="text-xl font-medium text-gray-400 line-through decoration-1">
+                  <span className="font-price text-xl text-gray-400 line-through decoration-1">
                     {formatCurrency(product.mrp!)}
                   </span>
                   <span className="text-sm font-bold text-green-600">
@@ -245,7 +245,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   className="flex-1 flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white font-bold h-14 px-8 rounded-xl transition-all duration-200 shadow-[0_4px_14px_0_rgb(21,128,61,0.39)] hover:shadow-[0_6px_20px_rgba(21,128,61,0.23)] hover:-translate-y-0.5 text-lg"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  {product.is_weight_based && cartItem ? `Edit Weight (${formatWeight(cartItem.quantity)})` : "Add to Cart"}
+                  {product.is_weight_based && cartItem ? `Edit Weight (${formatWeight(cartItem.quantity, product.unit)})` : "Add to Cart"}
                 </button>
               </div>
             )}
@@ -253,7 +253,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             {mounted && cartItem && (
               <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6">
                 <span className="text-sm text-green-700 font-medium">
-                  {product.is_weight_based ? formatWeight(cartItem.quantity) : cartItem.quantity} in cart
+                  {product.is_weight_based ? formatWeight(cartItem.quantity, product.unit) : cartItem.quantity} in cart
                 </span>
                 <Link href="/cart" className="text-sm text-green-700 font-semibold hover:underline">
                   View Cart →

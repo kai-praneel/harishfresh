@@ -7,6 +7,7 @@ import { productsApi, categoriesApi, subcategoriesApi, getImageUrl } from "@/ser
 import { Product, Category, Subcategory } from "@/types";
 import { formatCurrency, formatWeight } from "@/utils";
 import toast from "react-hot-toast";
+import { revalidateProducts } from "@/app/actions/revalidate";
 
 interface FormState {
   name: string; description: string; price: string; mrp: string; stock_status: string;
@@ -126,6 +127,7 @@ export default function ProductsPage() {
 
       if (editingId) { await productsApi.update(editingId, fd); toast.success("Product updated"); }
       else { await productsApi.create(fd); toast.success("Product created"); }
+      await revalidateProducts();
       closeForm(); await fetchData();
     } catch (err: any) { toast.error(err?.response?.data?.detail || "Failed to save product"); }
     finally { setSaving(false); }
@@ -133,7 +135,7 @@ export default function ProductsPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return; setDeleting(true);
-    try { await productsApi.delete(deleteTarget.id); toast.success("Product deleted"); setDeleteTarget(null); await fetchData(); }
+    try { await productsApi.delete(deleteTarget.id); toast.success("Product deleted"); setDeleteTarget(null); await revalidateProducts(); await fetchData(); }
     catch (err: any) { toast.error(err?.response?.data?.detail || "Failed to delete"); }
     finally { setDeleting(false); }
   };
@@ -142,7 +144,7 @@ export default function ProductsPage() {
     try {
       const fd = new FormData();
       fd.append("stock_status", p.stock_status === "in_stock" ? "out_of_stock" : "in_stock");
-      await productsApi.update(p.id, fd); toast.success("Stock status updated"); await fetchData();
+      await productsApi.update(p.id, fd); toast.success("Stock status updated"); await revalidateProducts(); await fetchData();
     } catch { toast.error("Failed to update stock status"); }
   };
 
@@ -150,7 +152,7 @@ export default function ProductsPage() {
     try {
       const fd = new FormData();
       fd.append("is_featured", String(!p.is_featured));
-      await productsApi.update(p.id, fd); toast.success("Featured status updated"); await fetchData();
+      await productsApi.update(p.id, fd); toast.success("Featured status updated"); await revalidateProducts(); await fetchData();
     } catch { toast.error("Failed to update featured status"); }
   };
 
@@ -234,12 +236,12 @@ export default function ProductsPage() {
                   <div className={`mt-2 px-3 py-2 rounded-lg text-xs font-medium ${effectiveOOS ? "bg-red-50 text-red-700" : isLowStock ? "bg-orange-50 text-orange-700" : "bg-gray-50 text-gray-600"}`}>
                     <div className="flex justify-between">
                       <span>Current Stock:</span>
-                      <span className="font-bold">{p.available_stock !== null && p.available_stock !== undefined ? formatWeight(p.available_stock) : "Not set"}</span>
+                      <span className="font-bold">{p.available_stock !== null && p.available_stock !== undefined ? formatWeight(p.available_stock, p.unit) : "Not set"}</span>
                     </div>
                     {p.low_stock_threshold !== null && p.low_stock_threshold !== undefined && (
                       <div className="flex justify-between mt-0.5">
                         <span>Low Stock Alert:</span>
-                        <span>{formatWeight(p.low_stock_threshold)}</span>
+                        <span>{formatWeight(p.low_stock_threshold, p.unit)}</span>
                       </div>
                     )}
                   </div>
@@ -280,7 +282,7 @@ export default function ProductsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    {form.is_weight_based ? "Price per KG (₹) *" : "Selling Price (₹) *"}
+                    {`Price per ${form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type} (₹) *`}
                   </label>
                   <input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} placeholder="0" min="0" step="0.01" className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.price ? "border-red-300 bg-red-50" : "border-gray-200"}`} />
                   {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
@@ -359,14 +361,14 @@ export default function ProductsPage() {
               {form.is_weight_based && (
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
                   <div className="col-span-2">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Inventory Management (Kg)</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Inventory Management ({form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type})</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Available Stock</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Available Stock ({form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type})</label>
                     <input type="number" value={form.available_stock} onChange={(e) => setForm((f) => ({ ...f, available_stock: e.target.value }))} placeholder="e.g. 5" min="0" step="0.001" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Low Stock Alert</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Low Stock Alert ({form.unit_type === "Custom" ? (form.custom_unit || "Unit") : form.unit_type})</label>
                     <input type="number" value={form.low_stock_threshold} onChange={(e) => setForm((f) => ({ ...f, low_stock_threshold: e.target.value }))} placeholder="e.g. 1" min="0" step="0.001" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
                   </div>
                 </div>

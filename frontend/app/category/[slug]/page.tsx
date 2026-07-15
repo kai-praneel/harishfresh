@@ -10,6 +10,8 @@ interface Props {
   searchParams: Promise<{ subcategory?: string; sort?: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+
 async function getPageData(slug: string, subcategoryId?: string, sort?: string) {
   try {
     const [catRes, productsRes] = await Promise.all([

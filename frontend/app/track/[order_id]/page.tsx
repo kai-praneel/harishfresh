@@ -7,6 +7,7 @@ import { ordersApi, settingsApi } from "@/services/api";
 import { Order, Settings } from "@/types";
 import { Loader2, Package, Truck, CheckCircle, Clock, AlertCircle, XCircle, Download } from "lucide-react";
 import toast from "react-hot-toast";
+import { formatWeight } from "@/utils";
 import Invoice from "@/components/shared/Invoice";
 import { downloadInvoicePdf } from "@/utils/pdf";
 
@@ -78,7 +79,6 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ order_
   };
 
   const formatCurrency = (amt: number) => `₹${amt.toFixed(2)}`;
-  const formatWeight = (g: number) => g >= 1000 ? `${(g / 1000).toFixed(1)} Kg` : `${g} g`;
 
   if (loading) {
     return (
@@ -189,7 +189,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ order_
                     <div>
                       <p className="font-bold text-gray-900">{item.product_name}</p>
                       <p className="text-sm text-gray-500 mt-1">
-                        {item.quantity} x {item.is_weight_based ? formatWeight(1000) /* Hack for UI, better to show unit */ : item.unit || "Kg"}
+                        {item.is_weight_based ? formatWeight(item.quantity, item.unit) : `${item.quantity} ${item.unit || "Kg"}`}
                       </p>
                     </div>
                     <p className="font-black text-gray-900">{formatCurrency(item.subtotal)}</p>

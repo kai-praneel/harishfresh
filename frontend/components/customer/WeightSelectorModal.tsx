@@ -50,12 +50,48 @@ export default function WeightSelectorModal({
     }
   };
 
+  const getMainUnitLabel = () => {
+    switch(product.unit?.toLowerCase()) {
+      case 'kg': return 'Kilograms (Kg)';
+      case 'litre': case 'l': return 'Litres (L)';
+      case 'gram': case 'g': return 'Grams (g)';
+      default: return `${product.unit || 'Unit'}`;
+    }
+  };
+
+  const getSubUnitLabel = () => {
+    switch(product.unit?.toLowerCase()) {
+      case 'kg': return 'Grams (g)';
+      case 'litre': case 'l': return 'Milliliters (ml)';
+      case 'gram': case 'g': return 'Milligrams (mg)';
+      default: return 'Fraction (1/1000)';
+    }
+  };
+
+  const getMainUnitShort = () => {
+    switch(product.unit?.toLowerCase()) {
+      case 'kg': return 'Kg';
+      case 'litre': case 'l': return 'L';
+      case 'gram': case 'g': return 'g';
+      default: return product.unit || 'Unit';
+    }
+  };
+
+  const getSubUnitShort = () => {
+    switch(product.unit?.toLowerCase()) {
+      case 'kg': return 'g';
+      case 'litre': case 'l': return 'ml';
+      case 'gram': case 'g': return 'mg';
+      default: return 'frac';
+    }
+  };
+
   const presetWeights = [
-    { label: '250g', k: '0', g: '250' },
-    { label: '500g', k: '0', g: '500' },
-    { label: '1 Kg', k: '1', g: '0' },
-    { label: '2 Kg', k: '2', g: '0' },
-    { label: '5 Kg', k: '5', g: '0' },
+    { label: `250${getSubUnitShort()}`, k: '0', g: '250' },
+    { label: `500${getSubUnitShort()}`, k: '0', g: '500' },
+    { label: `1 ${getMainUnitShort()}`, k: '1', g: '0' },
+    { label: `2 ${getMainUnitShort()}`, k: '2', g: '0' },
+    { label: `5 ${getMainUnitShort()}`, k: '5', g: '0' },
   ];
 
   const applyPreset = (k: string, g: string) => {
@@ -72,8 +108,8 @@ export default function WeightSelectorModal({
               <Scale className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Select Weight</h3>
-              <p className="text-sm text-gray-500">{product.name} ({formatCurrency(product.price)} / Kg)</p>
+              <h3 className="text-lg font-bold text-gray-900">Select Quantity</h3>
+              <p className="text-sm text-gray-500">{product.name} ({formatCurrency(product.price)} / {product.unit})</p>
             </div>
           </div>
           <button
@@ -87,7 +123,7 @@ export default function WeightSelectorModal({
         <div className="p-6">
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Kilograms (Kg)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{getMainUnitLabel()}</label>
               <div className="relative">
                 <input
                   type="number"
@@ -97,11 +133,11 @@ export default function WeightSelectorModal({
                   className="w-full text-center text-2xl font-bold px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
                   placeholder="0"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">Kg</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">{getMainUnitShort()}</span>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Grams (g)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{getSubUnitLabel()}</label>
               <div className="relative">
                 <input
                   type="number"
@@ -112,7 +148,7 @@ export default function WeightSelectorModal({
                   className="w-full text-center text-2xl font-bold px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
                   placeholder="000"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">g</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">{getSubUnitShort()}</span>
               </div>
             </div>
           </div>

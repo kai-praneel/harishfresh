@@ -130,7 +130,7 @@ export default function CartPage() {
                         onClick={() => setEditingProduct({ product, quantity })}
                         className="flex items-center justify-center bg-green-50 text-green-700 border border-green-200 rounded-xl overflow-hidden h-9 px-4 shadow-sm text-sm font-bold hover:bg-green-100 transition-colors"
                       >
-                        {formatWeight(quantity)}
+                        {formatWeight(quantity, product.unit)}
                       </button>
                     ) : (
                       <div className="flex items-center border border-gray-200 rounded-full overflow-hidden bg-white h-9 shadow-sm">
@@ -150,7 +150,7 @@ export default function CartPage() {
                       </div>
                     )}
                     <div className="flex flex-col items-end">
-                      <span className="font-bold text-gray-900 text-lg tracking-tight">
+                      <span className="font-price text-gray-900 text-lg tracking-tight">
                         {formatCurrency(product.is_weight_based ? (product.price * quantity) / 1000 : product.price * quantity)}
                       </span>
                       <span className="text-[11px] text-gray-400 font-medium">

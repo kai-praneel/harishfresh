@@ -264,7 +264,7 @@ ${trackingUrl}
 
 *Items:*
 ${order.items.map((item, index) => {
-  const qtyStr = item.is_weight_based ? formatWeight(item.quantity) : `${item.quantity} x ${item.unit || "Kg"}`;
+  const qtyStr = item.is_weight_based ? formatWeight(item.quantity, item.unit) : `${item.quantity} x ${item.unit || "Kg"}`;
   return `${index + 1}. ${item.product_name} - ${qtyStr} - ${formatCurrency(item.subtotal)}`;
 }).join("\n")}
 
@@ -292,7 +292,7 @@ ${order.items.map((item, index) => {
               <div className="border-t border-dashed border-gray-200 pt-4 space-y-3">
                 {order.items.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-gray-600 font-medium">{item.product_name} <span className="text-gray-400">({item.is_weight_based ? formatWeight(item.quantity) : `${item.unit || "Kg"} × ${item.quantity}`})</span></span>
+                    <span className="text-gray-600 font-medium">{item.product_name} <span className="text-gray-400">({item.is_weight_based ? formatWeight(item.quantity, item.unit) : `${item.unit || "Kg"} × ${item.quantity}`})</span></span>
                     <span className="font-bold text-gray-900">{formatCurrency(item.subtotal)}</span>
                   </div>
                 ))}
@@ -533,7 +533,7 @@ ${order.items.map((item, index) => {
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold text-gray-900 truncate">{product.name}</p>
                         <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">
-                          {product.is_weight_based ? formatWeight(quantity) : `${product.unit || "Kg"} × ${quantity}`}
+                          {product.is_weight_based ? formatWeight(quantity, product.unit) : `${product.unit || "Kg"} × ${quantity}`}
                         </p>
                       </div>
                     </div>
