@@ -10,6 +10,17 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
+from sqlalchemy.engine.reflection import Inspector
+
+def column_exists(table_name, column_name):
+    bind = op.get_context().bind
+    insp = Inspector.from_engine(bind)
+    has_table = insp.has_table(table_name)
+    if not has_table:
+        return False
+    columns = [c['name'] for c in insp.get_columns(table_name)]
+    return column_name in columns
+
 
 # revision identifiers, used by Alembic.
 revision: str = 'c2b0dbbac4a5'
@@ -20,8 +31,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    op.add_column('categories', sa.Column('image_url', sa.String(), nullable=True))
-    op.add_column('categories', sa.Column('image_file_id', sa.String(), nullable=True))
+    if not column_exists('categories', 'image_url'):
+        op.add_column('categories', sa.Column('image_url', sa.String(), nullable=True))
+    if not column_exists('categories', 'image_file_id'):
+        op.add_column('categories', sa.Column('image_file_id', sa.String(), nullable=True))
 
 
 def downgrade() -> None:
