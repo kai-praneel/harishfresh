@@ -4,7 +4,8 @@ export interface Category {
   slug: string;
   description?: string;
   subcategories: Subcategory[];
-  created_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Subcategory {
@@ -13,7 +14,8 @@ export interface Subcategory {
   slug: string;
   description?: string;
   category_id: number;
-  created_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Product {
@@ -33,7 +35,8 @@ export interface Product {
   category_id: number;
   subcategory_id?: number;
   category?: { id: number; name: string; slug: string };
-  created_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CartItem {
