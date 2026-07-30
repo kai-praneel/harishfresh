@@ -1,0 +1,24 @@
+# About HarishFresh
+HarishFresh is a modern, fast, and scalable e-commerce platform dedicated to delivering fresh groceries—including vegetables, fruits, dry fruits, and millets—directly to customers. 
+
+# Platform Overview
+The platform connects customers with high-quality farm-fresh produce. It provides a seamless shopping experience with features such as intelligent product search, category filtering, cart management, seamless checkout, and WhatsApp-integrated order communications.
+
+# Core Features
+- Intelligent Product Search & Filtering
+- Pagination and Infinite Scrolling for scalable catalog browsing
+- Order Management and Tracking
+- Dynamic Delivery and Pricing Calculation
+- WhatsApp integration for Bulk Orders and direct communication
+
+# Technology Overview
+- Frontend: Next.js (App Router), React, TailwindCSS, Zustand
+- Backend: FastAPI, SQLAlchemy (PostgreSQL), Python
+- Image Processing: ImageKit, Pillow
+- Payments: Razorpay Integration
+
+# Built By
+Developed by Sivinda.
+
+# Contact Information
+For inquiries, contact the HarishFresh team via the official store WhatsApp or contact links on the main website.

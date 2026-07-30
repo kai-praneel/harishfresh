@@ -84,6 +84,8 @@ export const productsApi = {
     featured?: boolean;
     search?: string;
     sort?: string;
+    skip?: number;
+    limit?: number;
   }) => api.get("/products/", { params }),
   get: (id: number) => api.get(`/products/${id}`),
   create: (formData: FormData) =>

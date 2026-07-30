@@ -10,6 +10,7 @@ from app.core.security import get_current_admin
 from app.core.config import settings
 from app.models.product import Product
 from app.models.category import Category
+from app.models.subcategory import Subcategory
 from app.schemas import ProductOut, ProductListOut, ProductCreate, ProductUpdate
 
 router = APIRouter(prefix="/products", tags=["products"])
@@ -28,6 +29,8 @@ def list_products(
     is_active: Optional[bool] = None,
     search: Optional[str] = None,
     sort: Optional[str] = None,  # price_asc | price_desc
+    skip: int = Query(0, ge=0),
+    limit: int = Query(24, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
     q = db.query(Product)
@@ -40,14 +43,23 @@ def list_products(
     if is_active is not None:
         q = q.filter(Product.is_active == is_active)
     if search:
-        q = q.filter(Product.name.ilike(f"%{search}%"))
+        search_term = f"%{search.strip()}%"
+        q = q.outerjoin(Category, Product.category_id == Category.id) \
+             .outerjoin(Subcategory, Product.subcategory_id == Subcategory.id) \
+             .filter(
+                 or_(
+                     Product.name.ilike(search_term),
+                     Category.name.ilike(search_term),
+                     Subcategory.name.ilike(search_term)
+                 )
+             )
     if sort == "price_asc":
         q = q.order_by(Product.price.asc())
     elif sort == "price_desc":
         q = q.order_by(Product.price.desc())
     else:
         q = q.order_by(Product.id.desc())
-    return q.all()
+    return q.offset(skip).limit(limit).all()
 
 
 @router.get("/{id}", response_model=ProductOut)

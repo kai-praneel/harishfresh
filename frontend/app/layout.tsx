@@ -12,6 +12,7 @@ export const metadata: Metadata = {
     description: "Fresh groceries delivered to your door",
     type: "website",
   },
+  authors: [{ name: "Praneel | Sivinda" }],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

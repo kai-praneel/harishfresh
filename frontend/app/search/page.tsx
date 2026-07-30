@@ -14,20 +14,48 @@ export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [sort, setSort] = useState("");
+  const [skip, setSkip] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  const fetchProducts = useCallback(async () => {
-    setLoading(true);
+  // Reset pagination when filters change
+  useEffect(() => {
+    setSkip(0);
+    setProducts([]);
+    setHasMore(true);
+  }, [query, categoryId, sort]);
+
+  const fetchProducts = useCallback(async (currentSkip: number) => {
+    if (currentSkip === 0) setLoading(true);
+    else setLoadingMore(true);
+
     try {
       const res = await productsApi.list({
-        search: query || undefined,
+        search: query.trim() || undefined,
         category_id: categoryId || undefined,
         sort: sort || undefined,
+        skip: currentSkip,
+        limit: 24,
       });
-      setProducts(res.data);
+      
+      const newProducts = res.data;
+      if (newProducts.length < 24) setHasMore(false);
+      else setHasMore(true);
+
+      if (currentSkip === 0) {
+        setProducts(newProducts);
+      } else {
+        setProducts(prev => {
+          const existingIds = new Set(prev.map(p => p.id));
+          const uniqueNew = newProducts.filter((p: Product) => !existingIds.has(p.id));
+          return [...prev, ...uniqueNew];
+        });
+      }
     } catch {
-      setProducts([]);
+      if (currentSkip === 0) setProducts([]);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [query, categoryId, sort]);
 
@@ -36,9 +64,9 @@ export default function SearchPage() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(fetchProducts, 300);
+    const timer = setTimeout(() => fetchProducts(skip), 300);
     return () => clearTimeout(timer);
-  }, [fetchProducts]);
+  }, [fetchProducts, skip]);
 
   return (
     <CustomerLayout>
@@ -55,6 +83,9 @@ export default function SearchPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search products..."
               className="w-full pl-9 pr-8 h-12 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder-gray-400"
             />
             {query && (
@@ -143,6 +174,19 @@ export default function SearchPage() {
             {products.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
+          </div>
+        )}
+
+        {/* Load More */}
+        {products.length > 0 && hasMore && !loading && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => setSkip(prev => prev + 24)}
+              disabled={loadingMore}
+              className="inline-flex items-center justify-center gap-2 bg-white text-green-700 font-bold px-8 py-3.5 rounded-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+            >
+              {loadingMore ? "Loading..." : "Load More"}
+            </button>
           </div>
         )}
       </div>

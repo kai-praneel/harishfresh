@@ -106,7 +106,7 @@ export default function Footer({ settings }: FooterProps) {
 
         <div className="border-t border-green-800 pt-6 text-center">
           <p className="text-green-400 text-sm">
-            © {new Date().getFullYear()} {settings?.store_name || "HarishFresh"}. All rights reserved.
+            © {new Date().getFullYear()} {settings?.store_name || "HarishFresh"}. All rights reserved. | Developed by Sivinda
           </p>
         </div>
       </div>
